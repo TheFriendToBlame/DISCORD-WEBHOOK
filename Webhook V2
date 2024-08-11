@@ -1,0 +1,39 @@
+local HttpService = game:GetService('HttpService')
+local Webhook_URL = "https://discord.com/api/webhooks/1272244853232636046/0McC_JDJ2ngNBB1NQT-zt2CndeqHGynsXBMGnt0auV1peEKSvDd-FKkkpDnrVndkXCiR"
+
+local player = game.Players.LocalPlayer
+local playerName = player.DisplayName ~= "" and player.DisplayName or player.Name
+
+local response = http_request({
+    Url = Webhook_URL,
+    Method = 'POST',
+    Headers = {
+        ['Content-Type'] = 'application/json'
+    },
+    Body = HttpService:JSONEncode({
+        ["content"] = nil,
+        ["embeds"] = {{
+            ["title"] = "**Your script has been executed!**",
+            ["description"] = playerName .. " has **executed** the script.\n\nDiscord server: [MaxHub](https://discord.gg/maxhub)",
+            ["color"] = tonumber("0x17181b"),
+            ["fields"] = {
+                {
+                    ["name"] = "**Hardware ID**:",
+                    ["value"] = "||" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "||",
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "**Job ID**:",
+                    ["value"] = game.JobId,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "**Place ID**:",
+                    ["value"] = tostring(game.PlaceId),
+                    ["inline"] = true
+                }
+            }
+        }},
+        ["attachments"] = {}
+    })
+})
