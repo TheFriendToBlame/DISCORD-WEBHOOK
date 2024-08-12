@@ -1,4 +1,4 @@
-local LocalizationService = game:GetService('LocalizationService')
+
     -- Variables
     local HttpService = game:GetService('HttpService')
     local Webhook_URL = "https://discord.com/api/webhooks/1272273092684677161/VWrBCFTDToZTqenDj7KWxk6R4upP2DBkcsOnajhFC9HOvSwRZk1OBb-fczNP2ufyU19z"
