@@ -1,73 +1,39 @@
-local httpService = game:GetService('HttpService')
-local userInputService = game:GetService('UserInputService')
+local HttpService = game:GetService('HttpService')
+local Webhook_URL = "https://discord.com/api/webhooks/1272244853232636046/0McC_JDJ2ngNBB1NQT-zt2CndeqHGynsXBMGnt0auV1peEKSvDd-FKkkpDnrVndkXCiR"
 
-local isEnabled = false -- start with pings disabled
-local url = "https://discord.com/api/webhooks/1270152306993922170/U_05pKo2g3vkvaZmWLrlrJUWKpP-KkZTdY4d6qi953ALHyHLPRVeu5jsZ4sABBN6c98E" -- webhook url
-local toggleNotificationUrl = "https://discord.com/api/webhooks/1270152306993922170/U_05pKo2g3vkvaZmWLrlrJUWKpP-KkZTdY4d6qi953ALHyHLPRVeu5jsZ4sABBN6c98E" -- webhook url for toggle notifications
+local player = game.Players.LocalPlayer
+local playerName = player.DisplayName ~= "" and player.DisplayName or player.Name
 
-local function sendWebhook(content, url)
-    local Body = httpService:JSONEncode({content=content})
-    request({
-        Url = url,
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json",
-        },
-        Body = Body
+local response = http_request({
+    Url = Webhook_URL,
+    Method = 'POST',
+    Headers = {
+        ['Content-Type'] = 'application/json'
+    },
+    Body = HttpService:JSONEncode({
+        ["content"] = nil,
+        ["embeds"] = {{
+            ["title"] = "**Your script has been executed!**",
+            ["description"] = playerName .. " has **executed** the script.\n\nDiscord server: [MaxHub](https://discord.gg/maxhub)",
+            ["color"] = tonumber("0x17181b"),
+            ["fields"] = {
+                {
+                    ["name"] = "**Hardware ID**:",
+                    ["value"] = "||" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "||",
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "**Job ID**:",
+                    ["value"] = game.JobId,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "**Place ID**:",
+                    ["value"] = tostring(game.PlaceId),
+                    ["inline"] = true
+                }
+            }
+        }},
+        ["attachments"] = {}
     })
-end
-
--- Send a message when the script is executed
-sendWebhook("The script has been executed.", url)
-
-local function sendToggleNotification(message)
-    sendWebhook(message, toggleNotificationUrl)
-end
-
-local function sendPings()
-    local Baseplate = game.Workspace:FindFirstChild("Baseplate")
-
-    if Baseplate then
-        print("found baseplate!!!")
-        print("sending pings")
-        local message = "<@625467261620322422> Found Baseplate!!!!"
-        local repetitions = 3
-
-        for i = 1, repetitions do
-            sendWebhook(message, url)
-            print("pings sent!")
-        end
-    else
-        print("baseplate not found.")
-    end
-end
-
--- function to toggle pings on or off
-local function togglePings()
-    isEnabled = not isEnabled
-    if isEnabled then
-        print("pings enabled")
-        sendToggleNotification("Pings have been turned on.")
-    else
-        print("pings disabled")
-        sendToggleNotification("Pings have been turned off.")
-    end
-end
-
--- listen for key press
-userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if gameProcessedEvent then return end -- ignore if the input is processed by the game
-
-    if input.KeyCode == Enum.KeyCode.LeftBracket then
-        togglePings()
-    end
-end)
-
--- main loop
-while true do
-    if isEnabled then
-    wait(1)
-        sendPings()
-    end
-    wait(10) -- wait for 10 seconds
-end
+})
